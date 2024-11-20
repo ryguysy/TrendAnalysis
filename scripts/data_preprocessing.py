@@ -51,5 +51,5 @@ if __name__ == "__main__":
     stock_data = add_moving_averages(stock_data)
     
     # Save preprocessed data
-    stock_data.to_csv('../data/preprocessed_stock_data.csv')
-    print("Data saved to ../data/preprocessed_stock_data.csv")
+    stock_data.to_csv(f'../data/{ticker}_data.csv')
+    print(f"Data saved to ../data/{ticker}_data.csv")
