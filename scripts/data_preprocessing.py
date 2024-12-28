@@ -7,7 +7,7 @@ def preprocess_stock_data(stock_df):
     stock_df.index = pd.to_datetime(stock_df.index)
     
     # Example: Handle missing values
-    stock_df.fillna(method='ffill', inplace=True)  # Forward fill
+    stock_df.ffill()  # Forward fill
 
     add_moving_averages(stock_df)
     
@@ -57,15 +57,80 @@ def add_moving_averages(df, window_short=50, window_long=200):
 
 
 
-if __name__ == "__main__":
-    # Example usage
-    ticker = 'AMD'
-    start_date = '2015-01-01'
-    end_date = '2024-01-01'
 
-    stock_data = download_stock_data(ticker, start_date, end_date)
-    stock_data = add_moving_averages(stock_data)
-    
-    # Save preprocessed data
-    stock_data.to_csv(f'../data/{ticker}_data.csv')
-    print(f"Data saved to ../data/{ticker}_data.csv")
+
+'''
+
+post preprocessing
+
+'''
+
+from nltk.sentiment import SentimentIntensityAnalyzer
+import pandas as pd
+import re
+
+def clean_post(post):
+    """
+    Cleans the post text by removing URLs, mentions, hashtags, emojis, and special characters.
+
+    Args:
+        post (str): The raw post text.
+
+    Returns:
+        str: The cleaned post text.
+    """
+    post = re.sub(r"http\S+|www\S+|https\S+", '', post, flags=re.MULTILINE)  # Remove URLs
+    post = re.sub(r"@\w+|#\w+", '', post)  # Remove mentions and hashtags
+    post = re.sub(r"[^a-zA-Z\s]", '', post)  # Remove special characters and emojis
+    post = post.lower()  # Convert to lowercase
+    return post.strip()
+
+def analyze_sentiment(posts_df):
+    """
+    Performs sentiment analysis on a DataFrame of posts.
+
+    Args:
+        posts_df (pd.DataFrame): DataFrame with a 'text' column containing post texts.
+
+    Returns:
+        pd.DataFrame: The original DataFrame with added sentiment scores and labels.
+    """
+    sia = SentimentIntensityAnalyzer()
+
+    # Clean the posts
+    posts_df['cleaned_text'] = posts_df['text'].apply(clean_post)
+
+    # Apply VADER for sentiment analysis
+    posts_df['sentiment_score'] = posts_df['cleaned_text'].apply(lambda x: sia.polarity_scores(x)['compound'])
+
+    # Add sentiment labels
+    posts_df['sentiment_label'] = posts_df['sentiment_score'].apply(
+        lambda score: 'positive' if score > 0.05 else ('negative' if score < -0.05 else 'neutral')
+    )
+
+    return posts_df
+
+def aggregate_daily_sentiment(posts_df):
+    """
+    Aggregates sentiment metrics for a single day.
+
+    Args:
+        posts_df (pd.DataFrame): DataFrame with sentiment analysis results.
+
+    Returns:
+        dict: Dictionary of aggregated sentiment metrics (counts and averages).
+    """
+    total_posts = len(posts_df)
+    positive_count = len(posts_df[posts_df['sentiment_label'] == 'positive'])
+    neutral_count = len(posts_df[posts_df['sentiment_label'] == 'neutral'])
+    negative_count = len(posts_df[posts_df['sentiment_label'] == 'negative'])
+
+    avg_sentiment_score = posts_df['sentiment_score'].mean()
+
+    return {
+        'total_posts': total_posts,
+        'positive_count': positive_count,
+        'neutral_count': neutral_count,
+        'negative_count': negative_count,
+        'avg_sentiment_score': avg_sentiment_score
+    }
