@@ -10,24 +10,24 @@ def main():
     Gathering stock data
     '''
     ticker = 'SPY'
-    start_date = '2015-01-01'
-    end_date = '2024-01-01'
+    start_date = '2024-12-01'
+    end_date = '2024-12-31'
     today = '2027-01-15' #str(date.today())
 
-    save_stock_data_to_db(ticker, start_date, end_date)  # Download and store data in DB
+    #save_stock_data_to_db(ticker, start_date, end_date)  # Download and store data in DB
 
-    option_chain = download_options_data(ticker, today)
+    #option_chain = download_options_data(ticker, today)
 
-    spread,strike,price = calculate_put_credit_spread(option_chain,get_price(ticker))
+    #spread,strike,price = calculate_put_credit_spread(option_chain,get_price(ticker))
 
-    print(f'strike: {strike}, price: {price}')
-    print(spread)
+    #print(f'strike: {strike}, price: {price}')
+    #print(spread)
 
     '''
     Gathering tweets
     '''
 
-    posts_df = collect_posts(ticker,'2024-01-01',end_date)
+    posts_df = collect_posts(ticker,start_date,end_date)
     #Assuming you already have a DataFrame with a 'text' column
     #posts_df = pd.read_csv('../data/tweets.csv')  # Example: Loading tweets data
 
