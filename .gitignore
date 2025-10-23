@@ -1,6 +1,15 @@
+# Local virtual environment
 venv/
-notebooks/token.txt
+
+# Bytecode and caches
 __pycache__/
 *.pyc
+
+# Jupyter notebook checkpoints
 .ipynb_checkpoints/
+
+# Local database files
 *.db
+
+# Local-only credentials (keep this file untracked)
+notebooks/token.txt
