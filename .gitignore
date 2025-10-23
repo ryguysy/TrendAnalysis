@@ -1,2 +1,6 @@
 venv/
 notebooks/token.txt
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.db
